@@ -93,10 +93,10 @@ if platform == 'android':
 
 	# Setup arch-specifics
 	if android_arch == 'armv7':
-		target_flags = ['-target', 'armv7a-linux-androideabi' + str(ndk_platform), '-march=armv7-a']
+		target_flags = ['-target', 'armv7a-linux-androideabi' + str(ndk_platform), '-march=armv7-a', '-mfpu=neon']
 		tool_prefix = "arm-linux-androideabi"
 	elif android_arch == 'arm64v8':
-		target_flags = ['-target', 'aarch64-linux-android' + str(ndk_platform)]
+		target_flags = ['-target', 'aarch64-linux-android' + str(ndk_platform), '-march=armv8-a']
 		tool_prefix = "aarch64-linux-android"
 	elif android_arch == "x86":
 		target_flags = ['-target', 'i686-linux-android' + str(ndk_platform)]
@@ -113,8 +113,8 @@ if platform == 'android':
 	env['AR'] = tool_prefix + '-ar'
 	env['AS'] = tool_prefix + '-as'
 	env['LINK'] = env['CXX']
-	env.Append(CCFLAGS=['-fPIC', '-frtti', '-fno-addrsig', '-fPIE'])
-	env.Append(LINKFLAGS=['-fPIE', '-fPIC', '-frtti', '-fno-addrsig'])
+	env.Append(CCFLAGS=['-fPIC'])
+	env.Append(LINKFLAGS=['-fPIC'])
 	env['SHLIBPREFIX'] = 'lib'
 	env['SHLIBSUFFIX'] = '.so'
 	#env.Append(LIBPATH=[toolchain + "/sysroot/usr/lib/" + tool_prefix + "/" + str(ndk_platform)], LIBS='c++')
