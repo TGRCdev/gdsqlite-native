@@ -1,0 +1,84 @@
+language: cpp
+
+env:
+  global:
+    - GODOT_CPP_REMOTE=https://github.com/tgrcdev/godot-cpp
+    - GODOT_CPP_BRANCH=gdnative-android"
+
+cache:
+  directories:
+    - $TRAVIS_BUILD_DIR/thirdparty/godot_cpp
+
+matrix:
+  include:
+  - name: "Linux 32-bit"
+    env: PLATFORM=linux BITS=32
+    os: linux
+  - name: "Linux 64-bit"
+    env: PLATFORM=linux BITS=64
+    os: linux
+  - name: "OSX 64-bit"
+    env: PLATFORM=osx BITS=64
+    os: osx
+  - name: "Android armv7"
+    env: PLATFORM=android ANDROID_ARCH=armv7
+    os: linux
+  - name: "Android arm64v8"
+    env: PLATFORM=android ANDROID_ARCH=arm64v8
+    os: linux
+  - name: "Android x86"
+    env: PLATFORM=android ANDROID_ARCH=x86
+    os: linux
+  - name: "Android x86_64"
+    env: PLATFORM=android ANDROID_ARCH=x86_64
+    os: linux
+
+before_install:
+  - if [ $PLATFORM != "osx" ];
+    then sudo apt-get install scons realpath unzip gcc-multilib g++-multilib;
+    else export HOMEBREW_NO_AUTO_UPDATE=1;
+    brew install scons;
+    fi
+
+install:
+  - cd thirdparty
+  - git clone $GODOT_CPP_REMOTE godot_cpp || true
+  - cd godot_cpp
+  - git remote set-url origin $GODOT_CPP_REMOTE
+  - git fetch
+  - git reset --hard HEAD
+  - git checkout $GODOT_CPP_BRANCH
+  - git submodule init
+  - git submodule update
+  - if [ $PLATFORM == "android" ];
+    then cd ../..;
+    curl -o ndk.zip https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip;
+    unzip -q ndk.zip -d .;
+    export ANDROID_NDK_ROOT=$(realpath ./android-ndk-r20);
+    cd thirdparty/godot_cpp;
+    scons platform=$PLATFORM android_arch=$ANDROID_ARCH target=release generate_bindings=yes;
+    else
+    scons platform=$PLATFORM bits=$BITS target=release generate_bindings=yes;
+    fi
+  - cd ../..
+
+script:
+  - if [ $PLATFORM == "android" ];
+    then scons platform=$PLATFORM android_arch=$ANDROID_ARCH target=release;
+    else
+    scons platform=$PLATFORM bits=$BITS target=release;
+    fi
+
+addons:
+  artifacts:
+    s3_region: "us-west-2"
+    working_dir: bin
+    target_paths: /gdsqlite-native/$TRAVIS_COMMIT/bin/
+    if: branch = nightly
+    paths:
+    - $(ls bin/*.dll | tr "\n" ":")
+    - $(ls bin/*.so | tr "\n" ":")
+    - $(ls bin/*.dylib | tr "\n" ":")
+
+git:
+  submodules: false
