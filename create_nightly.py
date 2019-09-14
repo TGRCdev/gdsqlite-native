@@ -1,6 +1,5 @@
 import boto3
 import sys
-import git
 import subprocess
 import threading
 import shutil
@@ -13,9 +12,14 @@ colorama_init(autoreset=True)
 def wait_and_download_thread(binary_name, bucket_name, folder, logger):
     s3 = boto3.resource("s3")
     s3_obj = s3.Object(bucket_name, folder + binary_name)
-    s3_obj.wait_until_exists()
+    while True:
+        try:
+            s3_obj.wait_until_exists()
+            break
+        except boto3.exceptions.botocore.exceptions.WaiterError:
+            pass
     logger.update(binary_name)
-    s3_obj.download_file("demo/lib/gdsqlite/" + binary_name)
+    s3_obj.download_file("bin/" + binary_name)
     logger.update(binary_name)
 
 if "--help" in sys.argv or '-h' in sys.argv:
@@ -90,6 +94,10 @@ if "--skip-download" not in sys.argv:
     logger = BinaryLogger()
     logger.init(binary_list)
     threads = []
+
+    if not os.path.exists("bin"):
+        os.mkdir("bin")
+
     for binary in binary_list:
         newthread = threading.Thread(target=wait_and_download_thread, args=(binary, "tgrcdev-nightlys", "gdsqlite-native/" + commit + "/bin/", logger))
         newthread.start()
@@ -97,35 +105,28 @@ if "--skip-download" not in sys.argv:
 
     for thread in threads:
         thread.join()
+            
 else:
     print("Skipped download stage.")
 
+archive_name = "gdsqlite-nightly-%s.zip" % short
 if "--skip-zip" not in sys.argv:
     sys.stdout.write("Zipping up files...")
     sys.stdout.flush()
 
-    filepaths = [
-        "lib/gdsqlite/gdsqlite.32.dll", "lib/gdsqlite/gdsqlite.64.dll",
-        "lib/gdsqlite/libgdsqlite.32.so", "lib/gdsqlite/libgdsqlite.64.so",
-        "lib/gdsqlite/libgdsqlite.64.dylib",
-        "lib/gdsqlite/libgdsqlite.armv7.so", "lib/gdsqlite/libgdsqlite.arm64v8.so",
-        "lib/gdsqlite/libgdsqlite.x86.so", "lib/gdsqlite/libgdsqlite.x86_64.so",
-        "lib/gdsqlite/library.tres", "lib/gdsqlite.gdns"
+    files = [
+        {"path": "LICENSE","arcpath": "lib/gdsqlite/LICENSE"}, {"path": "demo/lib/gdsqlite.gdns", "arcpath":"lib/gdsqlite.gdns"},
+        {"path": "bin/gdsqlite.32.dll", "arcpath": "lib/gdsqlite/gdsqlite.32.dll"}, {"path": "bin/gdsqlite.64.dll", "arcpath": "lib/gdsqlite/gdsqlite.64.dll"},
+        {"path": "bin/libgdsqlite.32.so", "arcpath": "lib/gdsqlite/libgdsqlite.32.so"}, {"path": "bin/libgdsqlite.64.so", "arcpath": "lib/gdsqlite/libgdsqlite.64.so"},
+        {"path": "bin/libgdsqlite.64.dylib", "arcpath": "lib/gdsqlite/libgdsqlite.64.dylib"},
+        {"path": "bin/libgdsqlite.armv7.so", "arcpath": "lib/gdsqlite/libgdsqlite.armv7.so"}, {"path": "bin/libgdsqlite.arm64v8.so", "arcpath": "lib/gdsqlite/libgdsqlite.arm64v8.so"},
+        {"path": "bin/libgdsqlite.x86.so", "arcpath": "lib/gdsqlite/libgdsqlite.x86.so"}, {"path": "bin/libgdsqlite.x86_64.so", "arcpath": "lib/gdsqlite/libgdsqlite.x86_64.so"},
+        {"path": "demo/lib/gdsqlite/library.tres", "arcpath": "lib/gdsqlite/library.tres"}
     ]
-
-    extra_files = [
-        {
-        "path": "LICENSE",
-        "arcpath": "lib/gdsqlite/LICENSE"
-        }
-    ]
-
-    archive_name = "gdsqlite-nightly-%s.zip" % short
+    
     archive = zipfile.ZipFile(archive_name, "w", zipfile.ZIP_STORED if "--fat-zip" in sys.argv else zipfile.ZIP_DEFLATED)
     with archive:
-        for file in filepaths:
-            archive.write("demo/" + file, file)
-        for file in extra_files:
+        for file in files:
             archive.write(file["path"], file["arcpath"])
     print("Done.")
 else:
