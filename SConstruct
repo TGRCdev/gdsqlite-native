@@ -23,6 +23,7 @@ if platform == 'linux':
 	else:
 		env.Append(CCFLAGS = ['-O3']);
 	env.Append(CXXFLAGS = ['-std=c++14'])
+	env.Append(LINKFLAGS = ['-s'])
 	
 	if bits == '64':
 		env.Append(CCFLAGS = [ '-m64' ]);
