@@ -285,8 +285,11 @@ Dictionary SQLite::parse_row(sqlite3_stmt *stmt, int result_type) {
 				break;
 
 			case SQLITE_TEXT:
-				value = Variant((char *) sqlite3_column_text(stmt, i));
+				{
+				String str = String(((const char *)sqlite3_column_text(stmt, i)));
+				value = Variant(str);
 				break;
+				}
 
 			case SQLITE_BLOB:
 				{
