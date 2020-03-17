@@ -3,7 +3,7 @@ language: cpp
 env:
   global:
     - GODOT_CPP_REMOTE=https://github.com/tgrcdev/godot-cpp
-    - GODOT_CPP_BRANCH=gdnative-android"
+    - GODOT_CPP_BRANCH=gdnative-android
 
 cache:
   directories:
@@ -54,7 +54,7 @@ install:
     then cd ../..;
     curl -o ndk.zip https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip;
     unzip -q ndk.zip -d .;
-    export ANDROID_NDK_ROOT=$(realpath ./android-ndk-r20);
+    export ANDROID_NDK_ROOT="$(realpath ./android-ndk-r20)";
     cd thirdparty/godot_cpp;
     scons platform=$PLATFORM android_arch=$ANDROID_ARCH target=release generate_bindings=yes;
     else
