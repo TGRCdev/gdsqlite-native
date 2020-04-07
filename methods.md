@@ -36,5 +36,8 @@ Can be written to, but the changes are NOT saved!
 ### bool query(statement: String)
 Queries the database with the given SQL statement. Returns `true` if no errors occurred.
 
+### bool query_all(statement: String)
+Queries the database with a list of SQL statements, separated by semicolons. Returns `true` if no errors occurred.
+
 ### bool query_with_args(statement: String, args: Array)
 Queries the database with the given SQL statement, replacing any `?` with arguments supplied by `args`. Returns `true` if no errors occurred.
