@@ -52,9 +52,9 @@ install:
   - git submodule update
   - if [ $PLATFORM == "android" ];
     then cd ../..;
-    curl -o ndk.zip https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip;
+    curl -o ndk.zip https://dl.google.com/android/repository/android-ndk-r21-linux-x86_64.zip;
     unzip -q ndk.zip -d .;
-    export ANDROID_NDK_ROOT="$(realpath ./android-ndk-r20)";
+    export ANDROID_NDK_ROOT="$(realpath ./android-ndk-r21)";
     cd thirdparty/godot_cpp;
     scons platform=$PLATFORM android_arch=$ANDROID_ARCH target=release generate_bindings=yes;
     else
@@ -74,7 +74,6 @@ addons:
     s3_region: "us-west-2"
     working_dir: bin
     target_paths: /gdsqlite-native/$TRAVIS_COMMIT/bin/
-    if: branch = nightly
     paths:
     - $(ls bin/*.dll | tr "\n" ":")
     - $(ls bin/*.so | tr "\n" ":")
