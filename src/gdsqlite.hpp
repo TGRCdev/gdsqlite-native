@@ -7,7 +7,7 @@
 #include <File.hpp>
 
 // SQLite3
-#include <sqlite3.h>
+#include <sqleet.h>
 #include <spmemvfs.h>
 
 #ifndef NULL
@@ -43,6 +43,7 @@ namespace godot {
 		// methods
 		bool open(String path);
 		bool open_buffered(String name, PoolByteArray buffers, int64_t size);
+		bool open_encrypted(String path, String password);
 		void close();
 
 		bool query(String statement);
