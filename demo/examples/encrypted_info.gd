@@ -3,6 +3,7 @@ extends Node
 const SQLite = preload("res://lib/gdsqlite.gdns");
 
 const db_path = "user://secret_info.db"
+const password = "banana bread"
 
 func _ready():
 	var file = File.new();
@@ -14,7 +15,7 @@ func _ready():
 func read_database():
 	print("Reading database with secret info");
 	var db = SQLite.new();
-	if not db.open_encrypted(db_path, "banana bread"):
+	if not db.open_encrypted(db_path, password):
 		print("Couldn't open secret database!");
 		return;
 	
@@ -22,14 +23,18 @@ func read_database():
 	
 	if not secret_info.empty():
 		print("Retrieved secret info");
-		print(secret_info);
+		for agent in secret_info:
+			var printline = "Agent %d: %s %s" % [agent["id"], agent["first_name"], agent["last_name"]]
+			if agent["nick_name"] != null:
+				printline += " - " + agent["nick_name"]
+			print(printline)
 	else:
 		print("Failed to retrieve secret info!");
 
 func create_database():
 	print("Creating database with secret info");
 	var db = SQLite.new();
-	if not db.open_encrypted(db_path, "banana bread"):
+	if not db.open_encrypted(db_path, password):
 		print("Couldn't create secret database!")
 		return;
 	

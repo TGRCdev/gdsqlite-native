@@ -88,6 +88,12 @@ bool SQLite::open_buffered(String name, PoolByteArray buffers, int64_t size) {
 
 bool SQLite::open_encrypted(String path, String password)
 {
+	if(path.begins_with_char_array("res://"))
+	{
+		Godot::print("\"SQLite.open_encrypted\" does not support packed databases under \"res://\". Please encrypt your database file manually and open it with \"File.open_encrypted_with_pass\" and \"SQLite.open_buffered\".");
+		return false;
+	}
+
 	bool opened = this->open(path);
 
 	if(!opened)
