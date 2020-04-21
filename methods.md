@@ -35,7 +35,6 @@ Can be written to, but the changes are NOT saved!
 
 ### bool open_encrypted(path: String, password: String)
 Opens the database file at the given path with the given password. Returns `true` if the database was successfully opened and decrypted, `false` otherwise.
-`open_encrypted` does NOT support packed databases under "res://". To have an encrypted packed database, please manually encrypt your database and open it using `File.open_encrypted_with_pass` and `SQLite.open_buffered`.
 
 ### bool query(statement: String)
 Queries the database with the given SQL statement. Returns `true` if no errors occurred.
