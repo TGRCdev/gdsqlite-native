@@ -33,6 +33,9 @@ If the path starts with "res://", it will use `open_buffered` implicitly.
 Opens a temporary database with the data in `buffer`. Used for opening databases stored in res:// or compressed databases. Returns `true` if the database was opened successfully.
 Can be written to, but the changes are NOT saved!
 
+### bool open_encrypted(path: String, password: String)
+Opens the database file at the given path with the given password. Returns `true` if the database was successfully opened and decrypted, `false` otherwise.
+
 ### bool query(statement: String)
 Queries the database with the given SQL statement. Returns `true` if no errors occurred.
 

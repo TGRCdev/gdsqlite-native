@@ -158,13 +158,15 @@ env.Append(CPPPATH=[
 sources = [
 	'src/gdsqlite.cpp',
 	'src/library.cpp',
-	'thirdparty/sqlite/sqlite3.c',
+	'thirdparty/sqlite/sqleet.c', # Includes 'sqlite3.c'
 	'thirdparty/sqlite/spmemvfs.c'
 ];
 
 # Libraries
 env.Append(LIBPATH=['thirdparty/godot_cpp/bin/']);
 env.Append(LIBS=[godotcpp_lib]);
+
+env.Append(CPPDEFINES=[ ("SKIP_HEADER_BYTES", 32) ]) # Don't encrypt the header of SQLite databases
 
 library = env.SharedLibrary(target=('bin/' + output + env['SHLIBSUFFIX']), source=sources);
 if platform == 'android': # Fix non-existant outputs

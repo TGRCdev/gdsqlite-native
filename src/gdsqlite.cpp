@@ -86,6 +86,28 @@ bool SQLite::open_buffered(String name, PoolByteArray buffers, int64_t size) {
 	return true;
 }
 
+bool SQLite::open_encrypted(String path, String password)
+{
+	bool opened = this->open(path);
+
+	if(!opened)
+	{
+		Godot::print("Failed to open encrypted database");
+		return false;
+	}
+
+	int result = sqlite3_key(get_handler(), password.utf8().get_data(), password.length());
+
+	if(result != SQLITE_OK)
+	{
+		Godot::print("Failed to open encrypted database, wrong password");
+		this->close();
+		return false;
+	}
+
+	return true;
+}
+
 void SQLite::close() {
 	if (db) {
 		// Cannot close database!
@@ -344,6 +366,7 @@ void SQLite::_register_methods() {
 	// Method list
 	register_method("open", &SQLite::open);
 	register_method("open_buffered", &SQLite::open_buffered);
+	register_method("open_encrypted", &SQLite::open_encrypted);
 	register_method("query", &SQLite::query);
 	register_method("query_all", &SQLite::query_all);
 	register_method("query_with_args", &SQLite::query_with_args);
