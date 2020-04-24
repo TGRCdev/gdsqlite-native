@@ -11,6 +11,10 @@ SQLite::SQLite() {
 }
 
 bool SQLite::open(String path) {
+	return open_with_flags(path, DEFAULT_OPEN_FLAGS);
+}
+
+bool SQLite::open_with_flags(String path, int flags) {
 	// Empty path
 	if (!path.strip_edges().length())
 		return false;
@@ -18,6 +22,11 @@ bool SQLite::open(String path) {
 	// If this is running outside of the editor, databases under res:// are assumed to be packed
 	if(!Engine::get_singleton()->is_editor_hint() && path.begins_with_char_array("res://"))
 	{
+		if(flags != DEFAULT_OPEN_FLAGS)
+		{
+			Godot::print("WARNING: Open flags are ignored for packed databases.");
+		}
+
 		Ref<File> dbfile;
 		dbfile.instance();
 		if(dbfile->open(path, File::READ) != Error::OK)
@@ -33,8 +42,14 @@ bool SQLite::open(String path) {
 	// Convert to global path
 	String real_path = ProjectSettings::get_singleton()->globalize_path(path.strip_edges());
 
+	int inv_flag_mask = ~ALLOWED_FLAGS_MASK;
+	if((flags & inv_flag_mask) != 0)
+	{
+		Godot::print(String("WARNING: Bad flags passed to SQLite::open_with_flags (Bad flag mask: ?). Ignoring...").format(Array::make(flags & inv_flag_mask), "?"));
+	}
+
 	// Open the database
-	int result = sqlite3_open(real_path.utf8().get_data(), &db);
+	int result = sqlite3_open_v2(real_path.utf8().get_data(), &db, flags & ALLOWED_FLAGS_MASK, nullptr);
 
 	if (result != SQLITE_OK) {
 		Godot::print("Cannot open database!");
@@ -88,7 +103,12 @@ bool SQLite::open_buffered(String name, PoolByteArray buffers, int64_t size) {
 
 bool SQLite::open_encrypted(String path, String password)
 {
-	bool opened = this->open(path);
+	return open_encrypted_with_flags(path, password, DEFAULT_OPEN_FLAGS);
+}
+
+bool SQLite::open_encrypted_with_flags(String path, String password, int flags)
+{
+	bool opened = this->open_with_flags(path, flags);
 
 	if(!opened)
 	{
@@ -367,6 +387,8 @@ void SQLite::_register_methods() {
 	register_method("open", &SQLite::open);
 	register_method("open_buffered", &SQLite::open_buffered);
 	register_method("open_encrypted", &SQLite::open_encrypted);
+	register_method("open_encrypted_with_flags", &SQLite::open_encrypted_with_flags);
+	register_method("open_with_flags", &SQLite::open_with_flags);
 	register_method("query", &SQLite::query);
 	register_method("query_all", &SQLite::query_all);
 	register_method("query_with_args", &SQLite::query_with_args);

@@ -26,7 +26,20 @@ namespace godot {
 		spmemvfs_db_t p_db;
 		bool memory_read;
 
+		const int ALLOWED_FLAGS_MASK = SQLITE_OPEN_READONLY |
+		SQLITE_OPEN_READWRITE |
+		SQLITE_OPEN_CREATE |
+		SQLITE_OPEN_URI |
+		SQLITE_OPEN_MEMORY |
+		SQLITE_OPEN_NOMUTEX |
+		SQLITE_OPEN_FULLMUTEX |
+		SQLITE_OPEN_SHAREDCACHE |
+		SQLITE_OPEN_PRIVATECACHE |
+		SQLITE_OPEN_NOFOLLOW;
+
 	public:
+		const int DEFAULT_OPEN_FLAGS = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
+
 		enum {
 			RESULT_BOTH = 0,
 			RESULT_NUM,
@@ -42,8 +55,10 @@ namespace godot {
 
 		// methods
 		bool open(String path);
+		bool open_with_flags(String path, int flags);
 		bool open_buffered(String name, PoolByteArray buffers, int64_t size);
 		bool open_encrypted(String path, String password);
+		bool open_encrypted_with_flags(String path, String password, int flags);
 		void close();
 
 		bool query(String statement);
