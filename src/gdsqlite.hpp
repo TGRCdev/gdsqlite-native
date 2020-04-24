@@ -57,6 +57,7 @@ namespace godot {
 		bool open(String path);
 		bool open_with_flags(String path, int flags);
 		bool open_buffered(String name, PoolByteArray buffers, int64_t size);
+		bool open_buffered_with_flags(String name, PoolByteArray buffers, int64_t size, int flags);
 		bool open_encrypted(String path, String password);
 		bool open_encrypted_with_flags(String path, String password, int flags);
 		void close();

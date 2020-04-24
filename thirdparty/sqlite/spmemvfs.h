@@ -53,7 +53,7 @@ int spmemvfs_env_init();
 
 void spmemvfs_env_fini();
 
-int spmemvfs_open_db( spmemvfs_db_t * db, const char * path, spmembuffer_t * mem );
+int spmemvfs_open_db( spmemvfs_db_t * db, const char * path, spmembuffer_t * mem, int flags );
 
 int spmemvfs_close_db( spmemvfs_db_t * db );
 

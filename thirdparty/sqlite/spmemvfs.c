@@ -491,7 +491,7 @@ void spmemvfs_env_fini()
 	}
 }
 
-int spmemvfs_open_db( spmemvfs_db_t * db, const char * path, spmembuffer_t * mem )
+int spmemvfs_open_db( spmemvfs_db_t * db, const char * path, spmembuffer_t * mem, int flags )
 {
 	int ret = 0;
 
@@ -511,7 +511,7 @@ int spmemvfs_open_db( spmemvfs_db_t * db, const char * path, spmembuffer_t * mem
 	sqlite3_mutex_leave( g_spmemvfs_env->mutex );
 
 	ret = sqlite3_open_v2( path, &(db->handle),
-			SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, SPMEMVFS_NAME );
+			flags, SPMEMVFS_NAME );
 
 	if( 0 == ret ) {
 		db->mem = mem;
