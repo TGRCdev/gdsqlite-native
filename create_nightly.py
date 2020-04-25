@@ -115,13 +115,21 @@ if "--skip-zip" not in sys.argv:
     sys.stdout.flush()
 
     files = [
-        {"path": "LICENSE","arcpath": "lib/gdsqlite/LICENSE"}, {"path": "demo/lib/gdsqlite.gdns", "arcpath":"lib/gdsqlite.gdns"},
-        {"path": "bin/gdsqlite.32.dll", "arcpath": "lib/gdsqlite/gdsqlite.32.dll"}, {"path": "bin/gdsqlite.64.dll", "arcpath": "lib/gdsqlite/gdsqlite.64.dll"},
-        {"path": "bin/libgdsqlite.32.so", "arcpath": "lib/gdsqlite/libgdsqlite.32.so"}, {"path": "bin/libgdsqlite.64.so", "arcpath": "lib/gdsqlite/libgdsqlite.64.so"},
+        {"path": "LICENSE","arcpath": "lib/gdsqlite/LICENSE"},
+        {"path": "demo/lib/gdsqlite.gdns", "arcpath":"lib/gdsqlite.gdns"},
+        {"path": "bin/gdsqlite.32.dll", "arcpath": "lib/gdsqlite/gdsqlite.32.dll"},
+        {"path": "bin/gdsqlite.64.dll", "arcpath": "lib/gdsqlite/gdsqlite.64.dll"},
+        {"path": "bin/libgdsqlite.32.so", "arcpath": "lib/gdsqlite/libgdsqlite.32.so"},
+        {"path": "bin/libgdsqlite.64.so", "arcpath": "lib/gdsqlite/libgdsqlite.64.so"},
         {"path": "bin/libgdsqlite.64.dylib", "arcpath": "lib/gdsqlite/libgdsqlite.64.dylib"},
-        {"path": "bin/libgdsqlite.armv7.so", "arcpath": "lib/gdsqlite/libgdsqlite.armv7.so"}, {"path": "bin/libgdsqlite.arm64v8.so", "arcpath": "lib/gdsqlite/libgdsqlite.arm64v8.so"},
-        {"path": "bin/libgdsqlite.x86.so", "arcpath": "lib/gdsqlite/libgdsqlite.x86.so"}, {"path": "bin/libgdsqlite.x86_64.so", "arcpath": "lib/gdsqlite/libgdsqlite.x86_64.so"},
-        {"path": "demo/lib/gdsqlite/library.tres", "arcpath": "lib/gdsqlite/library.tres"}, {"path": "methods.md", "arcpath": "methods.md"}, {"path": "methods.md", "arcpath":"lib/gdsqlite/methods.md"}
+        {"path": "bin/libgdsqlite.armv7.so", "arcpath": "lib/gdsqlite/libgdsqlite.armv7.so"},
+        {"path": "bin/libgdsqlite.arm64v8.so", "arcpath": "lib/gdsqlite/libgdsqlite.arm64v8.so"},
+        {"path": "bin/libgdsqlite.x86.so", "arcpath": "lib/gdsqlite/libgdsqlite.x86.so"},
+        {"path": "bin/libgdsqlite.x86_64.so", "arcpath": "lib/gdsqlite/libgdsqlite.x86_64.so"},
+        {"path": "demo/lib/gdsqlite/library.tres", "arcpath": "lib/gdsqlite/library.tres"},
+        {"path": "methods.md", "arcpath": "methods.md"},
+        {"path": "methods.md", "arcpath":"lib/gdsqlite/methods.md"},
+        {"path": "demo/lib/gdsqlite/flags.gd", "arcpath": "lib/gdsqlite/flags.gd"},
     ]
     
     archive = zipfile.ZipFile(archive_name, "w", zipfile.ZIP_STORED if "--fat-zip" in sys.argv else zipfile.ZIP_DEFLATED)

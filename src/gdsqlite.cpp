@@ -11,10 +11,14 @@ SQLite::SQLite() {
 }
 
 bool SQLite::open(String path) {
+	return open_with_flags(path, DEFAULT_OPEN_FLAGS);
+}
+
+bool SQLite::open_with_flags(String path, int flags) {
 	// Empty path
 	if (!path.strip_edges().length())
 		return false;
-	
+
 	// If this is running outside of the editor, databases under res:// are assumed to be packed
 	if(!Engine::get_singleton()->is_editor_hint() && path.begins_with_char_array("res://"))
 	{
@@ -27,14 +31,20 @@ bool SQLite::open(String path) {
 		}
 		int64_t size = dbfile->get_len();
 		PoolByteArray buffer = dbfile->get_buffer(size);
-		return open_buffered(path, buffer, size);
+		return open_buffered_with_flags(path, buffer, size, flags);
 	}
 
 	// Convert to global path
 	String real_path = ProjectSettings::get_singleton()->globalize_path(path.strip_edges());
 
+	int inv_flag_mask = ~ALLOWED_FLAGS_MASK;
+	if((flags & inv_flag_mask) != 0)
+	{
+		Godot::print(String("WARNING: Bad flags passed to SQLite::open_with_flags (Bad flag mask: ?). Ignoring...").format(Array::make(flags & inv_flag_mask), "?"));
+	}
+
 	// Open the database
-	int result = sqlite3_open(real_path.utf8().get_data(), &db);
+	int result = sqlite3_open_v2(real_path.utf8().get_data(), &db, flags & ALLOWED_FLAGS_MASK, nullptr);
 
 	if (result != SQLITE_OK) {
 		Godot::print("Cannot open database!");
@@ -44,7 +54,12 @@ bool SQLite::open(String path) {
 	return true;
 }
 
-bool SQLite::open_buffered(String name, PoolByteArray buffers, int64_t size) {
+bool SQLite::open_buffered(String name, PoolByteArray buffers, int64_t size)
+{
+	return open_buffered_with_flags(name, buffers, size, DEFAULT_OPEN_FLAGS);
+}
+
+bool SQLite::open_buffered_with_flags(String name, PoolByteArray buffers, int64_t size, int flags) {
 	if (!name.strip_edges().length()) {
 		return false;
 	}
@@ -75,7 +90,7 @@ bool SQLite::open_buffered(String name, PoolByteArray buffers, int64_t size) {
 
 	// Open database
 	spmemvfs_env_init();
-	int err = spmemvfs_open_db(&p_db, name.utf8().get_data(), p_mem);
+	int err = spmemvfs_open_db(&p_db, name.utf8().get_data(), p_mem, flags);
 
 	if (err != SQLITE_OK || p_db.mem != p_mem) {
 		Godot::print("Cannot open buffered database!");
@@ -88,7 +103,12 @@ bool SQLite::open_buffered(String name, PoolByteArray buffers, int64_t size) {
 
 bool SQLite::open_encrypted(String path, String password)
 {
-	bool opened = this->open(path);
+	return open_encrypted_with_flags(path, password, DEFAULT_OPEN_FLAGS);
+}
+
+bool SQLite::open_encrypted_with_flags(String path, String password, int flags)
+{
+	bool opened = this->open_with_flags(path, flags);
 
 	if(!opened)
 	{
@@ -366,7 +386,10 @@ void SQLite::_register_methods() {
 	// Method list
 	register_method("open", &SQLite::open);
 	register_method("open_buffered", &SQLite::open_buffered);
+	register_method("open_buffered_with_flags", &SQLite::open_buffered_with_flags);
 	register_method("open_encrypted", &SQLite::open_encrypted);
+	register_method("open_encrypted_with_flags", &SQLite::open_encrypted_with_flags);
+	register_method("open_with_flags", &SQLite::open_with_flags);
 	register_method("query", &SQLite::query);
 	register_method("query_all", &SQLite::query_all);
 	register_method("query_with_args", &SQLite::query_with_args);
